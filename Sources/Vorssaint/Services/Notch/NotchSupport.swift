@@ -1817,12 +1817,30 @@ enum NotchSupport {
     /// music plays, and it only says that the Mac stays awake. A watch
     /// follows the timer: the person started both and is waiting on them.
     static func compactActivities(timer: Bool, watch: Bool = false, downloads: Bool, agents: Bool,
-                                  calendar: Bool, music: Bool, keepAwake: Bool = false) -> [NotchCompactActivity] {
-        let candidates: [(Bool, NotchCompactActivity)] = [
+                                  calendar: Bool, music: Bool, keepAwake: Bool = false,
+                                  order: [NotchCompactActivity]? = nil) -> [NotchCompactActivity] {
+        let running: Set<NotchCompactActivity> = Set([
             (timer, .timer), (watch, .watch), (downloads, .downloads), (agents, .agents),
             (calendar, .calendar), (music, .music), (keepAwake, .keepAwake)
-        ]
-        return candidates.compactMap { $0.0 ? $0.1 : nil }
+        ].compactMap { (shows: Bool, activity: NotchCompactActivity) in shows ? activity : nil })
+        let ranked = order ?? activityOrder()
+        return (ranked + defaultActivityOrder.filter { !ranked.contains($0) }).filter(running.contains)
+    }
+
+    /// Which activity the closed island shows first when several run.
+    static let defaultActivityOrder: [NotchCompactActivity] = [.timer, .watch, .downloads, .agents, .calendar, .music, .keepAwake]
+
+    /// The person's priority, with any activity it does not name kept in
+    /// its built-in place at the end.
+    static func activityOrder(in defaults: UserDefaults = .standard) -> [NotchCompactActivity] {
+        let saved = (defaults.string(forKey: DefaultsKey.notchActivityOrder) ?? "")
+            .split(separator: ",").compactMap { NotchCompactActivity(rawValue: String($0)) }
+        var seen = Set<NotchCompactActivity>()
+        return (saved + defaultActivityOrder).filter { seen.insert($0).inserted }
+    }
+
+    static func hasCustomActivityOrder(in defaults: UserDefaults = .standard) -> Bool {
+        !(defaults.string(forKey: DefaultsKey.notchActivityOrder) ?? "").isEmpty
     }
 
     /// Supported, explicit pairs for the activity that keeps its reading

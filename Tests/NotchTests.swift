@@ -1610,6 +1610,11 @@ enum NotchTests {
                      && automatic.current(available: [.timer, .agents, .music], favored: .music) == .timer
                      && automatic.current(available: [.agents, .music], favored: .agents) == .agents,
                      "the resting choice outranks live agents, but not a timer, and is shown alone when it is all there is")
+        suite.expect(NotchSupport.compactActivities(timer: true, downloads: false, agents: true, calendar: false, music: true,
+                                                    order: [.music, .agents]) == [.music, .agents, .timer]
+                     && NotchSupport.compactActivities(timer: true, downloads: false, agents: true, calendar: false,
+                                                       music: true, order: NotchSupport.defaultActivityOrder) == [.timer, .agents, .music],
+                     "a priority set by hand ranks the running activities, the built-in order keeps the old one")
         let all: [NotchCompactActivity] = [.timer, .downloads, .agents, .calendar, .music, .keepAwake]
         let pairs: [NotchCompactActivity] = [.downloads, .agents, .calendar, .music]
         for companion in pairs {

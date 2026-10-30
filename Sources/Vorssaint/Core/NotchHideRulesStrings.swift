@@ -22,6 +22,11 @@ struct NotchHideRulesStrings {
     let unnamedDisplay: String
     let activityPicker: String
     let activityPickerHint: String
+    let priority: String
+    let priorityCaption: String
+    let moveUp: String
+    let moveDown: String
+    let resetOrder: String
 }
 
 extension FeatureStrings {
@@ -50,7 +55,12 @@ extension NotchHideRulesStrings {
         displaysCaption: "Displays switched off here always keep the island.",
         unnamedDisplay: "Display",
         activityPicker: "Choose between activities",
-        activityPickerHint: "Hovering over the closed island while several activities run shows a chooser.")
+        activityPickerHint: "Hovering over the closed island while several activities run shows a chooser.",
+        priority: "Priority",
+        priorityCaption: "When several activities run at once, the closed island shows the highest one. A choice made in the chooser still wins.",
+        moveUp: "Move Up",
+        moveDown: "Move Down",
+        resetOrder: "Reset Order")
 
     static let de = NotchHideRulesStrings(
         when: "Wann",
@@ -70,5 +80,10 @@ extension NotchHideRulesStrings {
         displaysCaption: "Ausgeschaltete Bildschirme behalten die Island immer.",
         unnamedDisplay: "Bildschirm",
         activityPicker: "Zwischen Aktivitäten wählen",
-        activityPickerHint: "Laufen mehrere Aktivitäten, zeigt die geschlossene Island beim Darüberfahren eine Auswahl.")
+        activityPickerHint: "Laufen mehrere Aktivitäten, zeigt die geschlossene Island beim Darüberfahren eine Auswahl.",
+        priority: "Vorrang",
+        priorityCaption: "Laufen mehrere Aktivitäten gleichzeitig, zeigt die geschlossene Island die oberste. Eine Wahl in der Auswahl gewinnt trotzdem.",
+        moveUp: "Nach oben",
+        moveDown: "Nach unten",
+        resetOrder: "Reihenfolge zurücksetzen")
 }

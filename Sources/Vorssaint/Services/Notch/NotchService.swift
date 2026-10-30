@@ -541,7 +541,8 @@ final class NotchService: ObservableObject {
     var compactActivity: NotchCompactActivity? {
         // A new song waiting for its notice is not drawn yet.
         activitySelection.current(available: awaitsTrackNotice ? compactActivities.filter { $0 != .music } : compactActivities,
-                                  favored: NotchSupport.idleContent().activity)
+                                  // An order set by hand says it all; otherwise the resting choice leads.
+                                  favored: NotchSupport.hasCustomActivityOrder() ? nil : NotchSupport.idleContent().activity)
     }
 
     var compactActivities: [NotchCompactActivity] {

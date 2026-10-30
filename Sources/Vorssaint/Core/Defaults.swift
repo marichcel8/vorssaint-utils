@@ -924,6 +924,7 @@ enum DefaultsKey {
     static let notchHideApps = "notchHideApps"                 // apps the app mode names
     static let notchHideKeptDisplays = "notchHideKeptDisplays" // display UUIDs where the island never hides
     static let notchActivityPickerOff = "notchActivityPickerOff" // hovering over several activities shows no chooser
+    static let notchActivityOrder = "notchActivityOrder"         // comma-separated NotchCompactActivity priority; empty = built-in order
     static let notchHideUntilHover = "notchHideUntilHover"
     static let notchHiddenShowsActivity = "notchHiddenShowsActivity"
     static let notchCoversMenus = "notchCoversMenus"
@@ -1534,6 +1535,7 @@ enum Defaults {
         DefaultsKey.notchHideApps: [String](),
         DefaultsKey.notchHideKeptDisplays: [String](),
         DefaultsKey.notchActivityPickerOff: false,
+        DefaultsKey.notchActivityOrder: "",
         DefaultsKey.notchHideUntilHover: false,
         DefaultsKey.notchHiddenShowsActivity: false,
         DefaultsKey.notchCoversMenus: true,
