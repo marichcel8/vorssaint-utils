@@ -52,6 +52,7 @@ struct NotchSettings: View {
     @AppStorage(DefaultsKey.notchReturnHome) private var returnHome = false
     @AppStorage(DefaultsKey.notchHomeModule) private var homeModule = NotchModule.controls.rawValue
     @AppStorage(DefaultsKey.notchOpensActivity) private var opensActivity = true
+    @AppStorage(DefaultsKey.notchActivityPickerOff) private var activityPickerOff = false
     @AppStorage(DefaultsKey.notchHiddenModules) private var hidden = ""
     @AppStorage(DefaultsKey.notchModuleOrder) private var order = ""
     @AppStorage(DefaultsKey.notchVolume) private var volume = true
@@ -709,11 +710,16 @@ struct NotchSettings: View {
                     .labelsHidden()
                 }
                 switchRow("livephoto", editor.openActivity, caption: editor.openActivityHint, isOn: $opensActivity)
+                switchRow("square.grid.2x2", FeatureStrings.notchHideRules(l10n.language).activityPicker,
+                          caption: FeatureStrings.notchHideRules(l10n.language).activityPickerHint,
+                          isOn: Binding(get: { !activityPickerOff }, set: { activityPickerOff = !$0 }))
             }
             SettingsCard(title: text.display) {
                 switchRow("arrow.up.left.and.arrow.down.right", text.hideInFullscreen, isOn: $hideInFullscreen)
                 if hideInFullscreen {
                     switchRow("cursorarrow", text.hoverInFullscreen, isOn: $hoverInFullscreen)
+                        .padding(.leading, settingsRowTextInset)
+                    NotchHideRulesControls()
                         .padding(.leading, settingsRowTextInset)
                 }
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {

@@ -553,6 +553,7 @@ final class NotchService: ObservableObject {
         (inside || activityPickerMenuOpen) && !hiddenInFullscreen && !hiddenUntilHover && !expanded && !peeking
             && !dragPlaceholder && notice == nil && captureControls == nil
             && compactActivities.count > 1
+            && !UserDefaults.standard.bool(forKey: DefaultsKey.notchActivityPickerOff)
     }
 
     var compactActivityPickerLayout: NotchActivityPickerLayout {
@@ -3289,10 +3290,13 @@ final class NotchService: ObservableObject {
     private func updateFullscreenDisplays() {
         guard showsOnAllDisplays, UserDefaults.standard.bool(forKey: DefaultsKey.notchHideInFullscreen)
         else { fullscreenDisplays = []; return }
+        let rules = NotchHideRules.current()
+        let displays = NSScreen.screens.map(\.notchDisplayID).filter { rules.applies(to: $0) }
+        guard !rules.always else { fullscreenDisplays = Set(displays); return }
         let covered = NotchAppFullscreen.coveredDisplays()
-        guard let topology = SpaceWindowBridge.topology() else { fullscreenDisplays = covered; return }
+        guard let topology = SpaceWindowBridge.topology() else { fullscreenDisplays = covered.intersection(displays); return }
         let separate = NSScreen.screensHaveSeparateSpaces
-        fullscreenDisplays = Set(NSScreen.screens.map(\.notchDisplayID).filter {
+        fullscreenDisplays = Set(displays.filter {
             topology.isFullscreen(on: $0, separateSpaces: separate) || covered.contains($0)
         })
     }
@@ -3621,8 +3625,13 @@ final class NotchService: ObservableObject {
     private func updateFullscreenVisibility(displayID: CGDirectDisplayID) {
         // A game's own full screen leaves the desktop Space in place, so the
         // frontmost app's windows are read when the Space is not full screen.
+        // The rules can keep a display, or hide on it whether or not anything
+        // is in full screen, for the focused app they name.
+        let rules = NotchHideRules.current()
         let hidden = UserDefaults.standard.bool(forKey: DefaultsKey.notchHideInFullscreen)
-            && (SpaceWindowBridge.topology()?.isFullscreen(on: displayID, separateSpaces: NSScreen.screensHaveSeparateSpaces) == true
+            && rules.applies(to: displayID)
+            && (rules.always
+                || SpaceWindowBridge.topology()?.isFullscreen(on: displayID, separateSpaces: NSScreen.screensHaveSeparateSpaces) == true
                 || NotchAppFullscreen.coveredDisplays().contains(displayID))
         guard hidden != hiddenInFullscreen else { return }
         hiddenInFullscreen = hidden

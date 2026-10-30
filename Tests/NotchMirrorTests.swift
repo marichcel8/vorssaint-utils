@@ -75,6 +75,14 @@ enum NotchMirrorContract {
         static var covered: Set<CGDirectDisplayID> = []
         static func coveredDisplays() -> Set<CGDirectDisplayID> { covered }
     }
+    /// The hide rules as they ship: full screen only, on every display, for any app.
+    enum NotchHideRules {
+        struct Rules {
+            let always = false
+            func applies(to displayID: CGDirectDisplayID) -> Bool { true }
+        }
+        static func current() -> Rules { Rules() }
+    }
 
     class State {
         var showsOnAllDisplays = true, running = true, suspended = false

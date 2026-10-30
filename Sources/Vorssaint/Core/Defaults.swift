@@ -919,6 +919,11 @@ enum DefaultsKey {
     static let notchShortcut = "notchShortcut"
     static let notchHideInFullscreen = "notchHideInFullscreen"
     static let notchHoverInFullscreen = "notchHoverInFullscreen"
+    static let notchHideTrigger = "notchHideTrigger"           // NotchHideRules.Trigger: in full screen only, or always
+    static let notchHideAppMode = "notchHideAppMode"           // NotchHideRules.AppMode for the focused app
+    static let notchHideApps = "notchHideApps"                 // apps the app mode names
+    static let notchHideKeptDisplays = "notchHideKeptDisplays" // display UUIDs where the island never hides
+    static let notchActivityPickerOff = "notchActivityPickerOff" // hovering over several activities shows no chooser
     static let notchHideUntilHover = "notchHideUntilHover"
     static let notchHiddenShowsActivity = "notchHiddenShowsActivity"
     static let notchCoversMenus = "notchCoversMenus"
@@ -1524,6 +1529,11 @@ enum Defaults {
         DefaultsKey.notchShortcut: GlobalShortcut.notchDefault.storageValue,
         DefaultsKey.notchHideInFullscreen: false,
         DefaultsKey.notchHoverInFullscreen: false,
+        DefaultsKey.notchHideTrigger: "fullscreen", // NotchHideRules.Trigger.fullscreen
+        DefaultsKey.notchHideAppMode: "any",         // NotchHideRules.AppMode.any
+        DefaultsKey.notchHideApps: [String](),
+        DefaultsKey.notchHideKeptDisplays: [String](),
+        DefaultsKey.notchActivityPickerOff: false,
         DefaultsKey.notchHideUntilHover: false,
         DefaultsKey.notchHiddenShowsActivity: false,
         DefaultsKey.notchCoversMenus: true,

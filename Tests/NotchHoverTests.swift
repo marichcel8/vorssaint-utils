@@ -32,6 +32,7 @@ enum NotchHoverTests {
                 case DefaultsKey.notchHideUntilHover: return hides
                 case DefaultsKey.notchOpenOnHover: return enabled
                 case DefaultsKey.notchHoverInFullscreen: return fullscreenHover
+                case DefaultsKey.notchActivityPickerOff: return false
                 default: return expands
                 }
             }

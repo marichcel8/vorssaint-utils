@@ -55,6 +55,17 @@ enum NotchFullscreenTests {
         static var covered: Set<CGDirectDisplayID> = []
         static func coveredDisplays() -> Set<CGDirectDisplayID> { covered }
     }
+    enum NotchHideRules {
+        static var always = false
+        /// nil: every display may hide; otherwise only these (display and app rules together).
+        static var hiding: Set<CGDirectDisplayID>?
+        struct Rules {
+            let always: Bool
+            let hiding: Set<CGDirectDisplayID>?
+            func applies(to displayID: CGDirectDisplayID) -> Bool { hiding?.contains(displayID) ?? true }
+        }
+        static func current() -> Rules { Rules(always: always, hiding: hiding) }
+    }
     class State {
         var running = true, suspended = false, hiddenInFullscreen = false
         var hoverEmphasized = false
@@ -83,6 +94,8 @@ enum NotchFullscreenTests {
             NSScreen.screensHaveSeparateSpaces = true
             SpaceWindowBridge.value = nil
             NotchAppFullscreen.covered = []
+            NotchHideRules.always = false
+            NotchHideRules.hiding = nil
             NotchService.shared = Service()
             PreciseVolumeRollerService.shared.stop()
         }
@@ -161,8 +174,36 @@ enum NotchFullscreenTests {
                      && SettingsBackupSupport.exportKeys().contains(DefaultsKey.notchHoverInFullscreen),
                      "fullscreen hover is a separate opt-in included in settings backup")
         appFullscreenChecks(topology, suite)
+        hideRuleChecks(topology, suite)
         appFullscreenWindowChecks(suite)
         volumeLifecycleChecks(topology, suite)
+    }
+
+    private static func hideRuleChecks(_ topology: Topology, _ suite: TestSuite) {
+        defer { NotchHideRules.always = false; NotchHideRules.hiding = nil; NotchAppFullscreen.covered = [] }
+        UserDefaults.standard.enabled = true
+        SpaceWindowBridge.value = topology
+        NotchAppFullscreen.covered = []
+        let service = Service()
+        NotchHideRules.hiding = [1]
+        service.updateFullscreenVisibility(displayID: 2)
+        suite.expect(!service.hiddenInFullscreen, "a kept display or an unlisted app keeps the island in full screen")
+        NotchHideRules.always = true
+        service.updateFullscreenVisibility(displayID: 1)
+        suite.expect(service.hiddenInFullscreen && service.collapses == 1,
+                     "hiding always steps aside on a chosen display with nothing in full screen")
+        NotchHideRules.hiding = []
+        service.updateFullscreenVisibility(displayID: 1)
+        suite.expect(!service.hiddenInFullscreen, "leaving the named app brings the island back")
+        UserDefaults.standard.enabled = false
+        NotchHideRules.hiding = nil
+        service.updateFullscreenVisibility(displayID: 1)
+        suite.expect(!service.hiddenInFullscreen, "the master switch still overrides hiding always")
+        suite.expect(Defaults.registeredDefaults[DefaultsKey.notchHideTrigger] as? String == "fullscreen"
+                     && Defaults.registeredDefaults[DefaultsKey.notchHideAppMode] as? String == "any"
+                     && SettingsBackupSupport.exportKeys().isSuperset(of: [DefaultsKey.notchHideTrigger,
+                         DefaultsKey.notchHideAppMode, DefaultsKey.notchHideApps, DefaultsKey.notchHideKeptDisplays]),
+                     "hide rules default to the old full-screen behavior and are backed up")
     }
 
     private static func appFullscreenChecks(_ topology: Topology, _ suite: TestSuite) {
