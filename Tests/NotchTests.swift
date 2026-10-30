@@ -1604,6 +1604,12 @@ enum NotchTests {
                      "the next song brings the chosen music back instead of the timer")
         selection.select(.downloads, available: [.agents, .music])
         suite.expect(selection.preferred == .music, "a late click on a removed choice is ignored")
+        let automatic = NotchActivitySelection()
+        suite.expect(automatic.current(available: [.agents, .music], favored: .music) == .music
+                     && automatic.current(available: [.agents], favored: .music) == .agents
+                     && automatic.current(available: [.timer, .agents, .music], favored: .music) == .timer
+                     && automatic.current(available: [.agents, .music], favored: .agents) == .agents,
+                     "the resting choice outranks live agents, but not a timer, and is shown alone when it is all there is")
         let all: [NotchCompactActivity] = [.timer, .downloads, .agents, .calendar, .music, .keepAwake]
         let pairs: [NotchCompactActivity] = [.downloads, .agents, .calendar, .music]
         for companion in pairs {

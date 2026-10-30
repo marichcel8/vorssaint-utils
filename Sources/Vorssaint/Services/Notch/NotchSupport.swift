@@ -710,6 +710,15 @@ struct NotchControlsLayout: Equatable {
 
 enum NotchIdleContent: String, CaseIterable {
     case none, battery, music, agents
+
+    /// The closed island's activity this choice stands for, if it has one.
+    var activity: NotchCompactActivity? {
+        switch self {
+        case .music: return .music
+        case .agents: return .agents
+        case .none, .battery: return nil
+        }
+    }
 }
 
 /// How urgently the charge is shown: amber for the early warning, red when low.
@@ -935,10 +944,18 @@ struct NotchActivitySelection {
         return companion
     }
 
-    func current(available: [NotchCompactActivity]) -> NotchCompactActivity? {
+    /// `favored` is the activity chosen to show at rest. Unless one was
+    /// picked by hand, it keeps its place over the activities that come and
+    /// go in the background, so live agents do not take turns with music.
+    /// A timer, a watch, downloads or an event still come first.
+    func current(available: [NotchCompactActivity], favored: NotchCompactActivity? = nil) -> NotchCompactActivity? {
         if let preferred, available.contains(preferred) { return preferred }
+        if let favored, available.contains(favored), let first = available.first,
+           Self.yieldsToFavored.contains(first) { return favored }
         return available.first
     }
+
+    static let yieldsToFavored: Set<NotchCompactActivity> = [.agents, .music, .keepAwake]
 }
 
 /// A floating capsule has no camera inside it, so its closed content runs in
